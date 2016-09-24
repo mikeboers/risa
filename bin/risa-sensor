@@ -22,7 +22,7 @@ last_time = time.time()
 while True:
 
     temp = sensor.get_temp()
-    comms.send_broadcast(type='temp', temp=temp)
+    comms.send_broadcast({'type': 'temp', 'temp': temp})
 
     now = time.time()
     to_sleep = last_time + args.interval - now

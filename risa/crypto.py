@@ -12,3 +12,17 @@ def sign(message):
     sig = hmac.new(config.SECRET, encoded + salt, hashlib.sha256).hexdigest()
     return '%s:%s:%s' % (message, salt.decode(), sig)
 
+
+def verify(signed):
+    
+    try:
+        encoded, salt, old_sig = signed.rsplit(':', 2)
+    except ValueError:
+        raise ValueError('malformed signature')
+
+    new_sig = hmac.new(config.SECRET, encoded + salt, hashlib.sha256).hexdigest()
+    if new_sig != old_sig:
+        raise ValueError('invalid signature')
+
+    return encoded.decode('utf8')
+
