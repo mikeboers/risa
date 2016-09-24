@@ -36,8 +36,6 @@ def get_bus_path():
     return path
 
 
-
-
 def get_temp():
 
     path = get_bus_path()

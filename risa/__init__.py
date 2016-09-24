@@ -1,4 +1,6 @@
 import logging
 
+from . import config
+
 # Setup logging.
-logging.basicConfig()
+logging.basicConfig(level=config.LOG_LEVEL)

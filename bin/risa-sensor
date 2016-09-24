@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+import os
+import time
+import sys
+
+# Get us onto the path.
+sys.path.append(os.path.abspath(os.path.join(__file__, '..', '..')))
+
+import argparse
+
+from risa import sensor
+from risa import comms
+from risa import config
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-i', '--interval', type=float, default=config.SENSOR_INTERVAL)
+args = parser.parse_args()
+
+last_time = time.time()
+while True:
+
+    temp = sensor.get_temp()
+    comms.send_broadcast(type='temp', temp=temp)
+
+    now = time.time()
+    to_sleep = last_time + args.interval - now
+    if to_sleep > 0:
+        time.sleep(to_sleep)
+        last_time += args.interval
+    else:
+        last_time = now
+
