@@ -15,8 +15,8 @@ def send_broadcast(msg):
     msg = dict(msg)
     if not msg.get('type'):
         raise ValueError('messages need types', msg)
-    msg.setdefault('device', config.DEVICE_NAME)
-    msg.setdefault('time', time.time())
+    msg['device'] = config.DEVICE_NAME
+    msg['time'] = time.time()
 
     serialized = json.dumps(msg, sort_keys=True, separators=(',', ':'))
     log.debug('send_broadcast(**%s)' % serialized)
@@ -39,9 +39,10 @@ def iter_broadcasts():
     while True:
 
         raw, addr = s.recvfrom(8192)
+
         try:
             serialized = crypto.verify(raw)
-        except ValueError as e:
+        except Exception as e:
             log.warning('verify failed: %s on %r' % (e, raw))
             continue
 
@@ -51,6 +52,12 @@ def iter_broadcasts():
             msg = json.loads(serialized)
         except Exception as e:
             log.warning('deserialization failed: %s on %r' % (e, serialized))
+            continue
+
+        time_offset = time.time() - msg['time']
+        if abs(time_offset) > 300:
+            log.warning('time offset by more than 5 minutes: %r' % serialized)
+            continue
 
         yield msg
 

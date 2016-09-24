@@ -1,0 +1,10 @@
+[Unit]
+Description=Risa Sensor
+
+[Service]
+User=risa
+ExecStart=/var/lib/risa/bin/risa-sensor
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

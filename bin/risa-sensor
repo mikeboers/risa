@@ -12,11 +12,14 @@ import argparse
 from risa import sensor
 from risa import comms
 from risa import config
+from risa import beacon
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--interval', type=float, default=config.SENSOR_INTERVAL)
 args = parser.parse_args()
+
+beacon.start({'mode': 'sensor'})
 
 last_time = time.time()
 while True:

@@ -17,7 +17,7 @@ BROADCAST_PORT = 31415
 # Sensor stuff.
 SENSOR_INTERVAL = 10
 
-LOG_LEVEL = logging.DEBUG
+LOG_LEVEL = logging.INFO
 
 
 

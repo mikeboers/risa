@@ -1,0 +1,12 @@
+
+- beacons
+    - risa.beacon.run() -> starts a thread which handles ping requests
+    - risa-ping -> pings everything, waits a second for responses
+
+- systemd service files
+    gpio-perms at startup
+
+- risa-fab for fabric
+
+- deal with replay attacks
+    - only accept messages within a limit of the current time

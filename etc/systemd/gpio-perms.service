@@ -1,0 +1,9 @@
+[Unit]
+Description=GPIO permissions
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'chgrp gpio /dev/gpiomem; chmod g+rw /dev/gpiomem'
+
+[Install]
+WantedBy=multi-user.target
