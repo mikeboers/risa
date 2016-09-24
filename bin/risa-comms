@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
+
 import argparse
 import os
 import time
@@ -30,11 +33,11 @@ if args.ping:
     pinger = threading.Thread(target=ping_target)
     pinger.daemon = True
     pinger.start()
-    for msg in comms.iter_broadcasts():
+    for ip, msg in comms.iter_broadcasts():
         if msg['type'] != 'pong':
             continue
-        print msg['id'], msg['device']
+        print(msg['id'], ip, msg['device'])
 
 elif args.watch:
-    for msg in comms.iter_broadcasts():
-        print(json.dumps(msg, sort_keys=True, indent=4))
+    for ip, msg in comms.iter_broadcasts():
+        print(ip, json.dumps(msg, sort_keys=True, indent=4))

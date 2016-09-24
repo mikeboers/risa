@@ -37,7 +37,7 @@ def on_ping(ping):
 
 
 def _target():
-    for msg in comms.iter_broadcasts():
+    for ip, msg in comms.iter_broadcasts():
         handler = _handlers.get(msg.get('type'))
         if not handler:
             continue
