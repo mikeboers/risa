@@ -13,6 +13,7 @@ def start(ping_extra):
     global _thread
     if not _thread:
         _thread = threading.Thread(target=_target)
+        _thread.daemon = True
         _thread.start()
     _ping_extra.update(ping_extra)
     return _thread

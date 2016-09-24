@@ -3,6 +3,10 @@
 Installation
 ------------
 
+# Setup sensor overlay.
+vim /boot/config.txt
+# add: dtoverlay=w1-gpio
+
 # Install our dependencies (system-wide).
 # ntp is required to keep the clocks accurate
 pacman -S python-setuptools python-pip make gcc ntp

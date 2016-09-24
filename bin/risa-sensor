@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import logging
 import os
 import time
 import sys
@@ -15,6 +16,9 @@ from risa import config
 from risa import beacon
 
 
+log = logging.getLogger(__name__)
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--interval', type=float, default=config.SENSOR_INTERVAL)
 args = parser.parse_args()
@@ -24,8 +28,11 @@ beacon.start({'mode': 'sensor'})
 last_time = time.time()
 while True:
 
-    temp = sensor.get_temp()
-    comms.send_broadcast({'type': 'temp', 'temp': temp})
+    try:
+        temp = sensor.get_temp()
+        comms.send_broadcast({'type': 'temp', 'temp': temp})
+    except Exception as e:
+        log.exception('error while reading or sending sensor data')
 
     now = time.time()
     to_sleep = last_time + args.interval - now
