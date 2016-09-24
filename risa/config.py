@@ -27,11 +27,11 @@ path = os.environ.get('RISA_CONFIG', '/etc/risa')
 if os.path.exists(path):
     local = {}
     try:
-        execfile(path, globals(), local)
+        exec(open(path).read(), globals(), local)
     except:
         log.exception('error while loading %s' % path)
     else:
-        for key, value in local.iteritems():
+        for key, value in local.items():
             if re.match(r'^[A-Z][A-Z_]*$', key):
                 globals()[key] = value
 
@@ -46,7 +46,12 @@ for key, value in os.environ.items():
         globals()[m.group(1)] = value
 
 
+
+
 if SECRET == b'monkey':
     log.warning('You should set SECRET')
+if isinstance(SECRET, str):
+    SECRET = SECRET.encode('ascii')
+
 if DEVICE_NAME == 'unnamed':
     log.warning('You should set DEVICE_NAME')
