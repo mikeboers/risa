@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+
+import os
+import sys
+
+if os.getuid():
+	print('You must be root.', file=sys.stderr)
+	exit(1)
+
+# Get us onto the path.
+sys.path.append(os.path.abspath(os.path.join(__file__, '..', '..')))
+
+from risa import config
+
+
+export = '/sys/class/gpio/export'
+
+for pin in config.pins():
+
+	base = '/sys/class/gpio/gpio%d' % pin
+
+	if not os.path.exists(base):
+		with open(export, 'w') as fh:
+			fh.write(str(pin))
+	if not os.path.exists(base):
+		print("Exporting pin %d failed." % pin, file=sys.stderr)
+		exit(2)
+
+	dir_ = base + '/direction'
+	with open(dir_, 'w') as fh:
+		fh.write('out')
+
+	value = base + '/value'
+	with open(value, 'w') as fh:
+		fh.write('0')
+

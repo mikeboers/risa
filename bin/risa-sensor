@@ -4,6 +4,7 @@ import logging
 import os
 import time
 import sys
+import random
 
 # Get us onto the path.
 sys.path.append(os.path.abspath(os.path.join(__file__, '..', '..')))
@@ -21,18 +22,29 @@ log = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--interval', type=float, default=config.SENSOR_INTERVAL)
+parser.add_argument('-f', '--fake', action='store_true')
 args = parser.parse_args()
 
 beacon.start({'mode': 'sensor'})
 
 last_time = time.time()
+temp = None
+
 while True:
 
-    try:
-        temp = sensor.get_temp()
+    if args.fake:
+        temp = temp or 10.0
+        temp = (temp - 10.0) * 0.95 + 10.0 + random.gauss(0, 0.1)
+
+    else:
+        try:
+            temp = sensor.get_temp()
+        except Exception as e:
+            log.exception('error while reading or sending sensor data')
+            temp = None
+
+    if temp is not None:
         comms.send_broadcast({'type': 'temp', 'temp': temp})
-    except Exception as e:
-        log.exception('error while reading or sending sensor data')
 
     now = time.time()
     to_sleep = last_time + args.interval - now

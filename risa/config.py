@@ -1,7 +1,7 @@
+import ast
 import logging
 import os
 import re
-import ast
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +19,11 @@ SENSOR_INTERVAL = 10
 
 LOG_LEVEL = logging.INFO
 
-
+PIN_HOT  = 19 # "W"
+PIN_COLD = 16 # "Y"
+PIN_FAN1 = 26 # "G"
+PIN_FAN2 = 20 # "G2"
+PIN_FAN3 = 21 # "G3"
 
 
 # Read the configfile.
@@ -35,6 +39,7 @@ if os.path.exists(path):
             if re.match(r'^[A-Z][A-Z_]*$', key):
                 globals()[key] = value
 
+
 # Pull in envvars.
 for key, value in os.environ.items():
     m = re.match(r'^RISA_([A-Z][A-Z_]*)$', key)
@@ -46,6 +51,9 @@ for key, value in os.environ.items():
         globals()[m.group(1)] = value
 
 
+# Summarize some stuff.
+def pins():
+    return (PIN_HOT, PIN_COLD, PIN_FAN1, PIN_FAN2, PIN_FAN3)
 
 
 if SECRET == b'monkey':
