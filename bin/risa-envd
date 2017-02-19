@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+
+import argparse
+import os
+import sys
+import logging
+import time
+
+# Get us onto the path.
+sys.path.append(os.path.abspath(os.path.join(__file__, '..', '..')))
+
+from risa import wires
+from risa import config
+from risa import comms
+
+
+log = logging.getLogger('risa-envd')
+
+
+SEASON = 'heat'
+MIN_TEMP = 22
+MAX_TEMP = 24
+
+DEVIATION_THRESHOLDS = (None, 1.0, 3.0, 8.0)
+
+
+sensor_weights = {}
+sensor_temps = {}
+
+
+def handle_temp_msg(device, temp, **msg):
+
+    now = time.time()
+
+    # Discard all old readings.
+    for temps in sensor_temps.values():
+        while temps and (now - temps[0][0]) > 300:
+            temps.pop(0)
+
+    temps = sensor_temps.setdefault(device, [])
+    temps.append((now, temp))
+
+    # Discard extra readings.
+    while len(temps) > 5:
+        temps.pop(0)
+
+    status_parts = []
+
+    total = weight = 0
+    averages = []
+    for device, temps in sensor_temps.items():
+        weight += sensor_weights.get(device, 1.0)
+        avg = sum(t[1] for t in temps) / len(temps)
+        status_parts.append('%s: %4.1f' % (device, avg))
+        averages.append((device, avg))
+        total += avg
+    avg = total / weight
+
+    total = weight = 0
+    for device, dev_avg in averages:
+        weight += sensor_weights.get(device, 1.0)
+        total += 2 * abs(dev_avg - avg)
+    dev = total / weight
+
+    print('AVG: %4.1f, DEV: %3.1f :: %s' % (avg, dev, ', '.join(status_parts)))
+
+    # TODO: Track our state better than this.
+    old_valve, old_fan = wires.get()
+
+    if SEASON == 'heat':
+        if avg < MIN_TEMP:
+            valve = 'heat'
+        elif avg > MAX_TEMP:
+            valve = 'closed'
+        else:
+            valve = old_valve
+
+    elif SEASON == 'cool':
+        if avg < MIN_TEMP:
+            valve = 'closed'
+        elif avg > MAX_TEMP:
+            valve = 'cool'
+        else:
+            valve = old_valve
+
+    for i, threshold in reversed(list(enumerate(DEVIATION_THRESHOLDS))):
+        if threshold is not None and dev >= threshold:
+            fan = i
+            break
+    else:
+        fan = 0 if valve == 'closed' else 1
+
+    if valve != old_valve or fan != old_fan:
+        print('SETTING VALVE: %s, FAN: %s' % (valve, fan))
+        wires.set(valve, fan)
+
+
+
+for ip, msg in comms.iter_broadcasts():
+
+    if msg['type'] != 'temp':
+        continue
+
+    try:
+        handle_temp_msg(**msg)
+    except KeyboardInterrupt:
+        raise
+    except:
+        log.exception('Exception during temp message:')
