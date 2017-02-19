@@ -11,11 +11,12 @@ from risa import wires
 
 
 commands = {
-    'hot':     (wires.HOT,    None),
-    'heat':    (wires.HOT,    None),
-    'furnace': (wires.HOT,    None),
-    'cold':    (wires.COLD,   None),
-    'ac':      (wires.COLD,   None),
+    'hot':     (wires.HEAT,    None),
+    'heat':    (wires.HEAT,    None),
+    'furnace': (wires.HEAT,    None),
+    'cool':    (wires.COOL,   None),
+    'cold':    (wires.COOL,   None),
+    'ac':      (wires.COOL,   None),
     'closed':  (wires.CLOSED, None),
     'close':   (wires.CLOSED, None),
     'ambient': (wires.CLOSED, None),
@@ -61,9 +62,9 @@ for command in args.commands:
 
 
 if valve is not None or fan is not None:
-    wires.set(valve, fan, _safe=not args.unsafe)
-
+    valve, fan = wires.set(valve, fan, safe=not args.unsafe)
 
 if not args.quiet:
-    print(wires.get_valve(), wires.get_fan())
+    valve, fan = wires.get()
+    print(valve, fan)
 
