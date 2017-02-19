@@ -19,8 +19,8 @@ SENSOR_INTERVAL = 10
 
 LOG_LEVEL = logging.INFO
 
-PIN_HOT  = 19 # "W"
-PIN_COLD = 16 # "Y"
+PIN_HEAT  = 19 # "W"
+PIN_COOL = 16 # "Y"
 PIN_FAN1 = 26 # "G"
 PIN_FAN2 = 20 # "G2"
 PIN_FAN3 = 21 # "G3"
@@ -58,7 +58,7 @@ for key, value in os.environ.items():
 
 # Summarize some stuff.
 def pins():
-    return (PIN_HOT, PIN_COLD, PIN_FAN1, PIN_FAN2, PIN_FAN3)
+    return (PIN_HEAT, PIN_COOL, PIN_FAN1, PIN_FAN2, PIN_FAN3)
 
 
 if SECRET == b'monkey':
