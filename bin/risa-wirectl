@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+
+import argparse
+import os
+import sys
+
+# Get us onto the path.
+sys.path.append(os.path.abspath(os.path.join(__file__, '..', '..')))
+
+from risa import wires
+
+
+commands = {
+    'hot':     (wires.HOT,    None),
+    'heat':    (wires.HOT,    None),
+    'furnace': (wires.HOT,    None),
+    'cold':    (wires.COLD,   None),
+    'ac':      (wires.COLD,   None),
+    'closed':  (wires.CLOSED, None),
+    'ambient': (wires.CLOSED, None),
+    'off':     (wires.CLOSED, 0),
+    '0':       (None,         0),
+    '1':       (None,         1),
+    '2':       (None,         2),
+    '3':       (None,         3),
+}
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--unsafe', action='store_true')
+parser.add_argument('commands', nargs='+')
+args = parser.parse_args()
+
+valve = None
+fan = None
+
+for command in args.commands:
+
+    try:
+        new_valve, new_fan = commands[command]
+    except KeyError:
+        print('Unknown command: %s.' % command, file=sys.stderr)
+        exit(1)
+
+    if new_valve is not None:
+        if valve is not None:
+            print('Multiple valve commands.', file=sys.stderr)
+            exit(1)
+        valve = new_valve
+
+    if new_fan is not None:
+        if fan is not None:
+            print('Multiple fan commands.', file=sys.stderr)
+            exit(2)
+        fan = new_fan
+
+print((valve, fan))
+wires.set(valve, fan, _safe=not args.unsafe)
+
+
+

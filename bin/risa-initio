@@ -2,10 +2,8 @@
 
 import os
 import sys
-
-if os.getuid():
-	print('You must be root.', file=sys.stderr)
-	exit(1)
+import pwd
+import grp
 
 # Get us onto the path.
 sys.path.append(os.path.abspath(os.path.join(__file__, '..', '..')))
@@ -13,14 +11,24 @@ sys.path.append(os.path.abspath(os.path.join(__file__, '..', '..')))
 from risa import config
 
 
-export = '/sys/class/gpio/export'
+if os.getuid():
+	print('You must be root.', file=sys.stderr)
+	exit(1)
+
+
+try:
+	gid = grp.getgrnam(config.GPIO_GROUP).gr_gid
+except:
+	print('Group %s does not exist.' % config.GPIO_GROUP, file=sys.stderr)
+	exit(1)
+
 
 for pin in config.pins():
 
 	base = '/sys/class/gpio/gpio%d' % pin
 
 	if not os.path.exists(base):
-		with open(export, 'w') as fh:
+		with open('/sys/class/gpio/export', 'w') as fh:
 			fh.write(str(pin))
 	if not os.path.exists(base):
 		print("Exporting pin %d failed." % pin, file=sys.stderr)
@@ -29,8 +37,27 @@ for pin in config.pins():
 	dir_ = base + '/direction'
 	with open(dir_, 'w') as fh:
 		fh.write('out')
+	if open(dir_).read().strip() != 'out':
+		print("Setting pin %d to output failed." % pin, file=sys.stderr)
+		exit(3)
 
 	value = base + '/value'
 	with open(value, 'w') as fh:
 		fh.write('0')
+	if open(value).read().strip() != '0':
+		print("Turning pin %d off failed." % pin, file=sys.stderr)
+		exit(4)
+
+	os.chown(value, 0, gid)
+	os.chmod(value, 0o660)
+	stat = os.stat(value)
+	if stat.st_gid != gid:
+		print("Could not set group of pin %d." % pin, file=sys.stderr)
+		exit(5)
+	if stat.st_mode & 0o777 != 0o660:
+		print("Could not set permissions of pin %d." % pin, file=sys.stderr)
+		exit(6)
+
+
+print('Ready')
 

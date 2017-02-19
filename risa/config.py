@@ -25,6 +25,11 @@ PIN_FAN1 = 26 # "G"
 PIN_FAN2 = 20 # "G2"
 PIN_FAN3 = 21 # "G3"
 
+GPIO_GROUP = 'gpio'
+
+# For testing.
+MOCK_PINS = False
+
 
 # Read the configfile.
 path = os.environ.get('RISA_CONFIG', '/etc/risa')
