@@ -17,8 +17,9 @@ commands = {
     'cold':    (wires.COLD,   None),
     'ac':      (wires.COLD,   None),
     'closed':  (wires.CLOSED, None),
+    'close':   (wires.CLOSED, None),
     'ambient': (wires.CLOSED, None),
-    'off':     (wires.CLOSED, 0),
+    'off':     (wires.CLOSED, 0), # BOTH?!
     '0':       (None,         0),
     '1':       (None,         1),
     '2':       (None,         2),
@@ -27,6 +28,7 @@ commands = {
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument('-q', '--quiet', action='store_true')
 parser.add_argument('--unsafe', action='store_true')
 parser.add_argument('commands', nargs='+')
 args = parser.parse_args()
@@ -35,6 +37,9 @@ valve = None
 fan = None
 
 for command in args.commands:
+
+    if command in ('status', 'st'):
+        continue
 
     try:
         new_valve, new_fan = commands[command]
@@ -54,8 +59,11 @@ for command in args.commands:
             exit(2)
         fan = new_fan
 
-print((valve, fan))
-wires.set(valve, fan, _safe=not args.unsafe)
+
+if valve is not None or fan is not None:
+    wires.set(valve, fan, _safe=not args.unsafe)
 
 
+if not args.quiet:
+    print(wires.get_valve(), wires.get_fan())
 
