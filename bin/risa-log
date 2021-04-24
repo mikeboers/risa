@@ -7,7 +7,6 @@ import argparse
 import os
 import time
 import sys
-import json
 
 # Get us onto the path.
 sys.path.append(os.path.abspath(os.path.join(__file__, '..', '..')))

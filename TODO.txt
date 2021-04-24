@@ -4,7 +4,7 @@
     - risa-ping -> pings everything, waits a second for responses
 
 - systemd service files
-    gpio-perms at startup
+    risa-initio at startup
 
 - risa-fab for fabric
 
@@ -14,51 +14,10 @@
 - What parts understand what season it is?
 	- Is it possible to have seasonal safety built in?
 
-- Document the docs are at: https://www.kernel.org/doc/Documentation/gpio/sysfs.txt
-
-- risa-initperms, at startup, as root, to setup all GPIO pins and their permissions
-
-- risa-wirectl for controlling the GPIO pins:
-
-	- `risa-wirectl (heat|hot|cold|ac|fan|ambient) [fan_speed]`
-	- `risa-wirectl [status]`
-	- `risa-wirectl (stop|off)`
-
-	- Built on top of a shared library for this, so that
-	  the safety and controll contrains are universal.
-
-	- Built-in safety:
-		- cannot open the valve without at least some fan speed.
-		- presense of `down` or `stop` file means that the.
-		  system will not respond to anything except stop commands.
-
-	- Consider writing in C so we don't have all the fuckery
-	  of the Python runtime.
-
-	- Pins during testing:
-		35, GPIO 19
-		36, GPIO 16
-		37, GPIO 26
-		38, GPIO 20
-		40, GPIO 21
-
-- risa-envd for taking temp inputs, and turning them into controls.
-
-	- First version takes current (or locally averaged) state, and
-	  acts only on that.
-	  	- Should the average temp be pulled up/down (in accordance
-	  	  with the season)? Open the valve!
-	  	  	- Have a min and max temperature range, e.g. in winter:
-	  	  		- Is it colder than min? Turn on the heat!
-	  	  		- Is it warmer than max? Turn off the heat!
-	  	- Are the rooms too different? Turn on the fans!
-	  		- Have thresholds for each of the speeds, e.g.:
-	  			- < 1°C -> turn it off
-	  			- < 2°C -> speed 1
-	  			- < 8°C -> speed 2
-	  			- >=8°C -> speed 3
+- Document the gpio docs are at: https://www.kernel.org/doc/Documentation/gpio/sysfs.txt
 
 - risa-envctl for changing the envd's parameters
-- risa-envgui for GUI envd controlling
+	- Record the settings somewhere for when you power-cycle it.
 
+- risa-gui for GUI envd controlling
 

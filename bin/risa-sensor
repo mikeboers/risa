@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--interval', type=float, default=config.SENSOR_INTERVAL)
-parser.add_argument('-f', '--fake', action='store_true')
+parser.add_argument('-f', '--fake', type=float)
 args = parser.parse_args()
 
 beacon.start({'mode': 'sensor'})
@@ -32,9 +32,9 @@ temp = None
 
 while True:
 
-    if args.fake:
-        temp = temp or 10.0
-        temp = (temp - 10.0) * 0.95 + 10.0 + random.gauss(0, 0.1)
+    if args.fake is not None:
+        temp = temp or args.fake
+        temp = (temp - args.fake) * 0.95 + args.fake + random.gauss(0, 0.1)
 
     else:
         try:
